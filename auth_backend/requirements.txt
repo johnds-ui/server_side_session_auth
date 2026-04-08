@@ -1,0 +1,24 @@
+# Flask auth service dependencies
+# Install with:  pip install -r auth_backend/requirements.txt
+
+# Web framework
+Flask>=3.1.0
+
+# ORM
+Flask-SQLAlchemy>=3.1.1
+psycopg2-binary>=2.9.9        # PostgreSQL adapter
+
+# Rate limiting (use Redis in production)
+Flask-Limiter>=3.8.0
+
+# Password hashing — Argon2id
+argon2-cffi>=23.1.0
+
+# Environment variable loading
+python-dotenv>=1.0.1
+
+# Production WSGI server
+gunicorn>=23.0.0
+
+# Optional — use Redis for rate-limit storage in production
+# redis>=5.0.0

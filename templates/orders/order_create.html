@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% block title %}Place Order{% endblock %}
+{% block content %}
+<section class="px-4 pt-5 pb-4 max-w-6xl mx-auto mb-4">
+    <p class="text-[10px] font-semibold tracking-widest text-red-500 uppercase mb-1 flex items-center gap-2">
+        <span class="w-1.5 h-1.5 bg-red-500 rounded-full inline-block"></span>
+        CHECKOUT
+    </p>
+    <h1 class="text-2xl font-extrabold text-gray-900 leading-tight tracking-tight mb-2">Confirm Your Order</h1>
+    <p class="text-gray-400 text-sm max-w-xl leading-relaxed">One final review before your room-service order is placed.</p>
+    <div class="mt-4 h-px bg-gray-100"></div>
+</section>
+
+<section class="grid gap-3 lg:grid-cols-[1.5fr,0.9fr]">
+    <div class="card rounded-xl p-4">
+        <div class="mb-5 flex items-center justify-between gap-3">
+            <h2 class="text-2xl font-bold text-[#1C1C1C]">Items</h2>
+            <span class="badge border border-gray-200 bg-white text-gray-500">{{ cart.items.count }} selected</span>
+        </div>
+        <div class="space-y-3">
+            {% for ci in cart.items.all %}
+            <article class="flex items-center justify-between rounded-xl border border-[#F0F0F0] px-3 py-2 text-sm">
+                    <div class="min-w-0">
+                        <p class="truncate text-sm font-semibold text-[#1C1C1C]">{{ ci.menu_item.name }}</p>
+                        <p class="mt-1 text-sm text-gray-400">Qty {{ ci.quantity }} x Rs {{ ci.menu_item.price }}</p>
+                    </div>
+                    <p class="text-base font-bold text-red-500">Rs {{ ci.subtotal }}</p>
+                </article>
+            {% empty %}
+                <div class="rounded-xl border border-dashed border-gray-200 p-4 text-center text-sm text-gray-400">No items in cart.</div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <aside class="lg:sticky lg:top-24 lg:h-fit">
+        <div class="card rounded-xl p-4">
+            <h3 class="text-2xl font-bold text-[#1C1C1C]">Payment Summary</h3>
+            <div class="mt-4 space-y-2 rounded-xl bg-[#FAFAFA] p-4">
+                <div class="flex items-center justify-between py-1.5 text-sm text-gray-400">
+                    <span>Items</span>
+                    <span class="font-medium text-[#1C1C1C]">{{ cart.items.count }}</span>
+                </div>
+                <div class="flex items-center justify-between py-1.5 text-sm text-gray-400">
+                    <span>Service charge</span>
+                    <span class="font-medium text-[#1C1C1C]">Included</span>
+                </div>
+                <div class="border-t border-[#F0F0F0] pt-3">
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-gray-400">Total</span>
+                        <span class="text-base font-bold text-[#E23744]">Rs {{ cart.total }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <form method="post" class="mt-6">
+                {% csrf_token %}
+                <button type="submit" class="inline-flex w-full items-center justify-center rounded-xl bg-[#E23744] py-2.5 text-sm font-semibold text-white transition hover:bg-[#c92d39]">Create Order</button>
+            </form>
+            <a href="{% url 'orders:cart_detail' %}" class="mt-3 inline-flex w-full items-center justify-center rounded-xl border border-gray-200 py-3 text-sm font-medium text-[#1C1C1C] transition hover:border-[#E23744] hover:text-[#E23744]">Back to Cart</a>
+        </div>
+    </aside>
+</section>
+{% endblock %}

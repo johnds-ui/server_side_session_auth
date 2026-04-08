@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+{% block title %}Your Cart{% endblock %}
+{% block content %}
+<section class="px-4 pt-5 pb-4 max-w-6xl mx-auto mb-4">
+    <p class="text-[10px] font-semibold tracking-widest text-red-500 uppercase mb-1 flex items-center gap-2">
+        <span class="w-1.5 h-1.5 bg-red-500 rounded-full inline-block"></span>
+        CART
+    </p>
+    <h1 class="text-2xl font-extrabold text-gray-900 leading-tight tracking-tight mb-2">Your Cart</h1>
+    <p class="text-gray-400 text-sm max-w-xl leading-relaxed">Review items, adjust quantity, and continue to checkout.</p>
+    <div class="mt-4 h-px bg-gray-100"></div>
+</section>
+
+{% if cart.items.all %}
+    <section class="grid gap-3 lg:grid-cols-[1.55fr,0.9fr]">
+        <div class="card overflow-hidden p-0">
+            <div class="hidden border-b border-[#F0F0F0] px-6 py-4 text-sm font-semibold text-gray-400 md:grid md:grid-cols-[1.5fr,0.8fr,0.6fr,0.5fr] md:gap-4">
+                <span>Item</span>
+                <span>Quantity</span>
+                <span>Price</span>
+                <span class="text-right">Remove</span>
+            </div>
+            <div class="divide-y divide-[#F0F0F0]">
+                {% for ci in cart.items.all %}
+                    <article class="grid gap-3 px-4 py-3 md:grid-cols-[1.5fr,0.8fr,0.6fr,0.5fr] md:items-center">
+                        <div class="flex min-w-0 items-center gap-4">
+                            {% if ci.menu_item.image %}
+                                <img src="{{ ci.menu_item.image.url }}" alt="{{ ci.menu_item.name }}" class="h-12 w-12 rounded-full object-cover">
+                            {% else %}
+                                <div class="flex h-12 w-12 items-center justify-center rounded-full bg-gray-100 text-xs text-gray-400">No image</div>
+                            {% endif %}
+                            <div class="min-w-0">
+                                <h3 class="truncate text-sm font-semibold text-[#1C1C1C]">{{ ci.menu_item.name }}</h3>
+                                <p class="mt-1 text-xs text-gray-400">Unit price: Rs {{ ci.menu_item.price }}</p>
+                            </div>
+                        </div>
+                        <form method="post" action="{% url 'orders:cart_update' ci.pk %}" class="cart-qty-form inline-flex w-fit items-center gap-2 rounded-xl border border-gray-200 px-2 py-1.5">
+                            {% csrf_token %}
+                            <input type="hidden" name="quantity" value="{{ ci.quantity }}" min="1" class="qty-hidden-input">
+                            <button type="button" class="qty-action-btn flex h-7 w-7 items-center justify-center rounded-lg border border-gray-200 text-sm text-gray-500 transition hover:border-[#E23744] hover:text-[#E23744]" data-action="decrease" aria-label="Decrease quantity">
+                                <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.75 10a.75.75 0 0 1 .75-.75h9a.75.75 0 0 1 0 1.5h-9a.75.75 0 0 1-.75-.75Z" clip-rule="evenodd"/></svg>
+                            </button>
+                            <span class="qty-value min-w-6 text-center text-sm font-semibold text-[#1C1C1C]">{{ ci.quantity }}</span>
+                            <button type="button" class="qty-action-btn flex h-7 w-7 items-center justify-center rounded-lg border border-gray-200 text-sm text-gray-500 transition hover:border-[#E23744] hover:text-[#E23744]" data-action="increase" aria-label="Increase quantity">
+                                <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 4.75a.75.75 0 0 1 .75.75v3.75h3.75a.75.75 0 0 1 0 1.5h-3.75v3.75a.75.75 0 0 1-1.5 0v-3.75H5.5a.75.75 0 0 1 0-1.5h3.75V5.5a.75.75 0 0 1 .75-.75Z" clip-rule="evenodd"/></svg>
+                            </button>
+                        </form>
+                        <div>
+                            <p class="text-sm font-bold text-red-500">Rs {{ ci.subtotal }}</p>
+                        </div>
+                        <div class="md:text-right">
+                            <a href="{% url 'orders:cart_remove' ci.pk %}" class="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-gray-200 text-gray-500 transition hover:border-[#E23744] hover:text-[#E23744]" aria-label="Remove item from cart" title="Remove">
+                                <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8.75 2a.75.75 0 0 0-.75.75V3H5.5a.75.75 0 0 0 0 1.5h.443l.895 10.29A2.25 2.25 0 0 0 9.08 17h1.84a2.25 2.25 0 0 0 2.242-2.21l.895-10.29h.443a.75.75 0 0 0 0-1.5H12V2.75a.75.75 0 0 0-.75-.75h-2.5ZM9.5 3V2.75h1V3h-1Z" clip-rule="evenodd"/></svg>
+                            </a>
+                        </div>
+                    </article>
+                {% endfor %}
+            </div>
+        </div>
+
+        <aside class="lg:sticky lg:top-24 lg:h-fit">
+            <div class="card rounded-xl p-4">
+                <h2 class="text-2xl font-bold text-[#1C1C1C]">Order Summary</h2>
+                <div class="mt-4 space-y-2 rounded-xl bg-[#FAFAFA] p-4">
+                    <div class="flex items-center justify-between py-1.5 text-sm text-gray-400">
+                        <span>Items</span>
+                        <span class="font-medium text-[#1C1C1C]">{{ cart.items.count }}</span>
+                    </div>
+                    <div class="flex items-center justify-between py-1.5 text-sm text-gray-400">
+                        <span>Service</span>
+                        <span class="font-medium text-[#1C1C1C]">Included</span>
+                    </div>
+                    <div class="border-t border-[#F0F0F0] pt-3">
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-400">Total</span>
+                            <span class="text-lg font-bold text-red-500">Rs {{ cart.total }}</span>
+                        </div>
+                    </div>
+                </div>
+                <a href="{% url 'orders:order_create' %}" class="mt-4 inline-flex w-full items-center justify-center rounded-xl bg-[#E23744] py-2.5 text-sm font-semibold text-white transition hover:bg-[#c92d39]">Proceed to Checkout</a>
+                <a href="{% url 'menu:menu_list' %}" class="mt-3 inline-flex w-full items-center justify-center rounded-xl border border-gray-200 py-3 text-sm font-medium text-[#1C1C1C] transition hover:border-[#E23744] hover:text-[#E23744]">Continue Browsing</a>
+            </div>
+        </aside>
+    </section>
+{% else %}
+    <section class="card py-8">
+        <div class="mx-auto flex max-w-md flex-col items-center text-center">
+            <div class="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-50 text-[#E23744]">
+                <svg class="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13l-1.5 7h13M7 13 5.4 5M16 20a1 1 0 1 0 0 2 1 1 0 0 0 0-2Zm-8 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2Z"></path></svg>
+            </div>
+            <h2 class="text-base font-bold text-[#1C1C1C]">Your cart is empty</h2>
+            <p class="mt-2 text-sm text-gray-400">Add a few favorites to begin your order.</p>
+            <a href="{% url 'menu:menu_list' %}" class="mt-6 inline-flex items-center rounded-xl bg-[#E23744] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#c92d39]">Browse Menu</a>
+        </div>
+    </section>
+{% endif %}
+
+<script>
+    document.querySelectorAll(".cart-qty-form").forEach(function (form) {
+        var hiddenInput = form.querySelector(".qty-hidden-input");
+        var quantityText = form.querySelector(".qty-value");
+        var buttons = form.querySelectorAll(".qty-action-btn");
+
+        buttons.forEach(function (button) {
+            button.addEventListener("click", function () {
+                var value = parseInt(hiddenInput.value || "1", 10);
+                if (button.dataset.action === "increase") {
+                    value += 1;
+                } else {
+                    value = Math.max(1, value - 1);
+                }
+
+                hiddenInput.value = value;
+                quantityText.textContent = value;
+                form.submit();
+            });
+        });
+    });
+</script>
+{% endblock %}

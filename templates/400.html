@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block title %}400 | Bad Request{% endblock %}
+{% block content %}
+<section class="px-4 pt-5 pb-4 max-w-6xl mx-auto">
+    <p class="text-[10px] font-semibold tracking-widest text-red-500 uppercase mb-1 flex items-center gap-2">
+        <span class="w-1.5 h-1.5 bg-red-500 rounded-full inline-block"></span>
+        400 ERROR
+    </p>
+    <h1 class="text-2xl font-extrabold text-gray-900 leading-tight tracking-tight mb-2">Bad Request</h1>
+    <p class="text-gray-400 text-sm max-w-xl leading-relaxed">The request could not be processed. Please check your input and try again.</p>
+    <div class="mt-4 h-px bg-gray-100"></div>
+</section>
+
+<section class="mx-auto max-w-xl py-10">
+    <div class="rounded-xl bg-white p-4 text-center shadow-card">
+        <p class="text-6xl font-extrabold text-[#E23744]">400</p>
+        <a href="{% url 'menu:menu_list' %}" class="mt-6 inline-flex items-center rounded-xl bg-[#E23744] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#c92d39]">Back to Menu</a>
+    </div>
+</section>
+{% endblock %}

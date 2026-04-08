@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% block title %}All Orders{% endblock %}
+{% block content %}
+<section class="grid gap-3 lg:grid-cols-[220px,minmax(0,1fr)]">
+    {% include 'includes/admin_sidebar.html' %}
+
+    <div class="space-y-4">
+        <section class="px-4 pt-5 pb-4 max-w-6xl mx-auto">
+            <p class="text-[10px] font-semibold tracking-widest text-red-500 uppercase mb-1 flex items-center gap-2">
+                <span class="w-1.5 h-1.5 bg-red-500 rounded-full inline-block"></span>
+                ADMIN
+            </p>
+            <h1 class="text-2xl font-extrabold text-gray-900 leading-tight tracking-tight mb-2">Order Management</h1>
+            <p class="text-gray-400 text-sm max-w-xl leading-relaxed">Monitor and update all customer orders from one view.</p>
+            <div class="mt-4 h-px bg-gray-100"></div>
+        </section>
+
+        <section class="card overflow-hidden p-0">
+            <div class="overflow-x-auto">
+                <table class="min-w-full text-sm">
+                    <thead class="bg-white">
+                        <tr class="border-b border-[#F0F0F0] text-left text-gray-400">
+                            <th class="px-6 py-4 font-medium">ID</th>
+                            <th class="px-6 py-4 font-medium">User</th>
+                            <th class="px-6 py-4 font-medium">Status</th>
+                            <th class="px-6 py-4 font-medium">Placed</th>
+                            <th class="px-6 py-4 font-medium text-right">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="stagger">
+                        {% for order in orders %}
+                            <tr class="border-b border-[#F8F8F8] transition hover:bg-gray-50">
+                                <td class="px-6 py-4 font-semibold text-[#1C1C1C]">#{{ order.id }}</td>
+                                <td class="px-6 py-4 text-gray-500">{{ order.user }}</td>
+                                <td class="px-6 py-4">
+                                    {% if order.status == 'pending' %}
+                                        <span class="badge bg-amber-50 text-amber-600">Pending</span>
+                                    {% elif order.status == 'preparing' or order.status == 'out_for_delivery' %}
+                                        <span class="badge bg-blue-50 text-blue-600">{{ order.get_status_display }}</span>
+                                    {% elif order.status == 'served' or order.status == 'completed' %}
+                                        <span class="badge bg-emerald-50 text-emerald-600">{{ order.get_status_display }}</span>
+                                    {% elif order.status == 'cancelled' %}
+                                        <span class="badge bg-red-50 text-red-600">Cancelled</span>
+                                    {% else %}
+                                        <span class="badge bg-gray-100 text-gray-500">{{ order.get_status_display }}</span>
+                                    {% endif %}
+                                </td>
+                                <td class="px-6 py-4 text-gray-500">{{ order.created_at }}</td>
+                                <td class="px-6 py-4 text-right">
+                                    <a href="{% url 'orders:admin_order_update' order.pk %}" class="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-gray-200 text-gray-500 transition hover:border-[#E23744] hover:text-[#E23744]" title="Update order">
+                                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 8v4l3 3m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"></path></svg>
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+</section>
+{% endblock %}

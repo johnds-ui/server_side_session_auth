@@ -1,0 +1,201 @@
+{% extends 'base.html' %}
+{% block title %}Order History{% endblock %}
+{% block content %}
+<section class="px-4 pt-5 pb-4 max-w-6xl mx-auto mb-4">
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+            <p class="text-[10px] font-semibold tracking-widest text-red-500 uppercase mb-1 flex items-center gap-2">
+                <span class="w-1.5 h-1.5 bg-red-500 rounded-full inline-block"></span>
+                ORDER HISTORY
+            </p>
+            <h1 class="text-2xl font-extrabold text-gray-900 leading-tight tracking-tight mb-2">Your orders</h1>
+            <p class="text-gray-400 text-sm max-w-xl leading-relaxed">A compact view of active, completed, and cancelled meals.</p>
+        </div>
+        <div class="grid grid-cols-3 gap-2 text-center">
+            <a href="#active-orders" class="rounded-xl border border-red-100 bg-red-50 px-3 py-2 transition hover:-translate-y-0.5">
+                <p class="text-lg font-bold text-[#E53E3E]">{{ active_orders|length }}</p>
+                <p class="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">Active</p>
+            </a>
+            <a href="#completed-orders" class="rounded-xl border border-gray-200 bg-white px-3 py-2 transition hover:-translate-y-0.5">
+                <p class="text-lg font-bold text-slate-900">{{ completed_orders|length }}</p>
+                <p class="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">Done</p>
+            </a>
+            <a href="#cancelled-orders" class="rounded-xl border border-gray-200 bg-white px-3 py-2 transition hover:-translate-y-0.5">
+                <p class="text-lg font-bold text-slate-900">{{ cancelled_orders|length }}</p>
+                <p class="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">Cancelled</p>
+            </a>
+        </div>
+    </div>
+    <div class="mt-4 h-px bg-gray-100"></div>
+</section>
+
+{% if orders %}
+    <section class="space-y-5">
+        <div id="active-orders">
+            <div class="mb-3 flex items-center justify-between gap-3">
+                <div>
+                    <h2 class="text-base font-bold text-[#1C1C1C]">Active Orders</h2>
+                    <p class="text-sm text-gray-400">Orders currently in progress.</p>
+                </div>
+                <a href="#active-orders" class="text-sm font-semibold text-[#E53E3E]">View all</a>
+            </div>
+            {% if active_orders %}
+                <div class="stagger grid grid-cols-1 gap-3 md:grid-cols-2">
+                    {% for order in active_orders %}
+                        <article class="rounded-xl bg-white p-3 shadow-[0_1px_6px_rgba(0,0,0,0.06)] ring-1 ring-[#F7F7F7] transition hover:-translate-y-0.5">
+                            <div class="flex h-full flex-col gap-3">
+                                <div class="flex items-center gap-3">
+                                    {% if order.primary_image_url %}
+                                        <img src="{{ order.primary_image_url }}" alt="{{ order.item_summary }}" class="h-14 w-14 rounded-full object-cover">
+                                    {% else %}
+                                        <div class="flex h-14 w-14 items-center justify-center rounded-full bg-gray-100 text-[10px] font-medium text-gray-400">No image</div>
+                                    {% endif %}
+                                    <div class="min-w-0 flex-1">
+                                        <div class="flex flex-wrap items-center gap-2">
+                                            <h3 class="truncate text-sm font-semibold text-[#1C1C1C]">{{ order.item_summary }}</h3>
+                                            <span class="badge bg-red-50 px-2 py-0.5 text-[10px] text-[#E53E3E]">{{ order.get_status_display }}</span>
+                                        </div>
+                                        <p class="mt-1 text-xs text-gray-400">Order #{{ order.id }} | {{ order.created_at|date:"M j, Y" }} | {{ order.item_count }} item{{ order.item_count|pluralize }}</p>
+                                        <p class="mt-2 overflow-hidden text-xs text-gray-400 [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:1]">
+                                            {% for order_item in order.order_items.all %}
+                                                {{ order_item.quantity }} x {{ order_item.menu_item.name }}{% if not forloop.last %}, {% endif %}
+                                            {% endfor %}
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between gap-3 border-t border-gray-100 pt-3">
+                                    <div>
+                                        <p class="text-[10px] font-semibold uppercase tracking-[0.18em] text-gray-400">Total</p>
+                                        <p class="text-lg font-bold text-[#1C1C1C]">Rs {{ order.total_amount }}</p>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <form method="post" action="{% url 'orders:order_cancel' order.id %}">
+                                            {% csrf_token %}
+                                            <button type="submit" class="inline-flex items-center rounded-lg border border-gray-200 px-3 py-1 text-xs text-[#1C1C1C] transition hover:border-[#E53E3E] hover:text-[#E53E3E]">Cancel</button>
+                                        </form>
+                                        <a href="{% url 'orders:order_track' order.id %}" class="inline-flex items-center rounded-lg bg-[#E23744] px-3 py-1 text-xs font-medium text-white transition hover:bg-[#c92d39]">Track</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </article>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="card py-6 text-center">
+                    <p class="text-sm font-semibold text-[#1C1C1C]">No active orders.</p>
+                    <p class="mt-1 text-sm text-gray-400">New orders will appear here.</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <div id="completed-orders">
+            <div class="mb-3 flex items-center justify-between gap-3">
+                <div>
+                    <h2 class="text-base font-bold text-[#1C1C1C]">Completed Orders</h2>
+                    <p class="text-sm text-gray-400">Finished meals ready to re-order.</p>
+                </div>
+                <a href="#completed-orders" class="text-sm font-semibold text-[#E53E3E]">View all</a>
+            </div>
+            {% if completed_orders %}
+                <div class="stagger grid grid-cols-1 gap-3 md:grid-cols-2">
+                    {% for order in completed_orders %}
+                        <article class="rounded-xl bg-white p-3 shadow-[0_1px_6px_rgba(0,0,0,0.06)] ring-1 ring-[#F7F7F7] transition hover:-translate-y-0.5">
+                            <div class="flex h-full flex-col gap-3">
+                                <div class="flex items-center gap-3">
+                                    {% if order.primary_image_url %}
+                                        <img src="{{ order.primary_image_url }}" alt="{{ order.item_summary }}" class="h-14 w-14 rounded-full object-cover">
+                                    {% else %}
+                                        <div class="flex h-14 w-14 items-center justify-center rounded-full bg-gray-100 text-[10px] font-medium text-gray-400">No image</div>
+                                    {% endif %}
+                                    <div class="min-w-0 flex-1">
+                                        <div class="flex flex-wrap items-center gap-2">
+                                            <h3 class="truncate text-sm font-semibold text-[#1C1C1C]">{{ order.item_summary }}</h3>
+                                            <span class="badge bg-gray-100 px-2 py-0.5 text-[10px] text-gray-500">{{ order.get_status_display }}</span>
+                                        </div>
+                                        <p class="mt-1 text-xs text-gray-400">Order #{{ order.id }} | {{ order.created_at|date:"M j, Y" }}</p>
+                                        <p class="mt-2 overflow-hidden text-xs text-gray-400 [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:1]">
+                                            {% for order_item in order.order_items.all %}
+                                                {{ order_item.quantity }} x {{ order_item.menu_item.name }}{% if not forloop.last %}, {% endif %}
+                                            {% endfor %}
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between gap-3 border-t border-gray-100 pt-3">
+                                    <div>
+                                        <p class="text-[10px] font-semibold uppercase tracking-[0.18em] text-gray-400">Total</p>
+                                        <p class="text-lg font-bold text-[#1C1C1C]">Rs {{ order.total_amount }}</p>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <button type="button" class="inline-flex cursor-not-allowed items-center rounded-lg border border-gray-200 px-3 py-1 text-xs text-gray-400" title="Ratings are coming soon">Rate</button>
+                                        <form method="post" action="{% url 'orders:order_reorder' order.id %}">
+                                            {% csrf_token %}
+                                            <button type="submit" class="inline-flex items-center rounded-lg bg-[#E23744] px-3 py-1 text-xs font-medium text-white transition hover:bg-[#c92d39]">Re-order</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </article>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="card py-6 text-center">
+                    <p class="text-sm font-semibold text-[#1C1C1C]">No completed orders.</p>
+                    <p class="mt-1 text-sm text-gray-400">Delivered meals will move here.</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <div id="cancelled-orders">
+            <div class="mb-3 flex items-center justify-between gap-3">
+                <div>
+                    <h2 class="text-base font-bold text-[#1C1C1C]">Cancelled Orders</h2>
+                    <p class="text-sm text-gray-400">Orders that were stopped before delivery.</p>
+                </div>
+                <a href="#cancelled-orders" class="text-sm font-semibold text-[#E53E3E]">View all</a>
+            </div>
+            {% if cancelled_orders %}
+                <div class="stagger grid grid-cols-1 gap-3 md:grid-cols-2">
+                    {% for order in cancelled_orders %}
+                        <article class="rounded-xl bg-white p-3 shadow-[0_1px_6px_rgba(0,0,0,0.06)] ring-1 ring-[#F7F7F7] transition hover:-translate-y-0.5">
+                            <div class="flex items-center gap-3">
+                                {% if order.primary_image_url %}
+                                    <img src="{{ order.primary_image_url }}" alt="{{ order.item_summary }}" class="h-14 w-14 rounded-full object-cover">
+                                {% else %}
+                                    <div class="flex h-14 w-14 items-center justify-center rounded-full bg-gray-100 text-[10px] font-medium text-gray-400">No image</div>
+                                {% endif %}
+                                <div class="min-w-0 flex-1">
+                                    <div class="flex flex-wrap items-center gap-2">
+                                        <h3 class="truncate text-sm font-semibold text-[#1C1C1C]">{{ order.item_summary }}</h3>
+                                        <span class="badge bg-red-50 px-2 py-0.5 text-[10px] text-[#E53E3E]">Cancelled</span>
+                                    </div>
+                                    <p class="mt-1 text-xs text-gray-400">Order #{{ order.id }} | {{ order.created_at|date:"M j, Y" }}</p>
+                                    <div class="mt-2 flex items-center justify-between gap-3">
+                                        <p class="overflow-hidden text-xs text-gray-400 [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:1]">{{ order.live_status_note }}</p>
+                                        <p class="text-sm font-bold text-[#1C1C1C]">Rs {{ order.total_amount }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </article>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="card py-6 text-center">
+                    <p class="text-sm font-semibold text-[#1C1C1C]">No cancelled orders.</p>
+                    <p class="mt-1 text-sm text-gray-400">You are all clear here.</p>
+                </div>
+            {% endif %}
+        </div>
+    </section>
+{% else %}
+    <section class="card py-8">
+        <div class="mx-auto flex max-w-md flex-col items-center text-center">
+            <div class="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-50 text-[#E23744]">
+                <svg class="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 17v-6m6 6V7M5 21h14"></path></svg>
+            </div>
+            <h2 class="text-base font-bold text-[#1C1C1C]">No orders yet</h2>
+            <p class="mt-2 text-sm text-gray-400">Start with something from the menu and your order history will appear here.</p>
+            <a href="{% url 'menu:menu_list' %}" class="mt-6 inline-flex items-center rounded-xl bg-[#E23744] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#c92d39]">Order Now</a>
+        </div>
+    </section>
+{% endif %}
+{% endblock %}

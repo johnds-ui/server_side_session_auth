@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+{% block title %}{{ item.name }}{% endblock %}
+{% block content %}
+{% include 'includes/cart_preview_card.html' %}
+<section class="px-4 pt-5 pb-4">
+    <p class="mb-1 flex items-center gap-2 text-[10px] font-semibold uppercase tracking-widest text-red-500">
+        <span class="inline-block h-1.5 w-1.5 rounded-full bg-red-500"></span>
+        MENU DETAIL
+    </p>
+    <div class="flex flex-col gap-3 border-b border-gray-100 pb-4 md:flex-row md:items-end md:justify-between">
+        <div class="max-w-2xl">
+            <h1 class="text-2xl font-extrabold leading-tight tracking-tight text-gray-900">{{ item.name }}</h1>
+            <p class="mt-2 text-sm leading-relaxed text-gray-400">
+                {{ item.description|default:"Freshly prepared by our in-house kitchen." }}
+            </p>
+        </div>
+        <a href="{% url 'menu:menu_list' %}" class="inline-flex items-center justify-center rounded-lg border border-gray-200 px-4 py-2 text-xs font-medium text-[#1C1C1C] transition hover:border-[#E23744] hover:text-[#E23744]">
+            Back to Menu
+        </a>
+    </div>
+</section>
+
+<section class="grid gap-4 lg:grid-cols-[minmax(0,1fr)_340px]">
+    <div class="card overflow-hidden p-0">
+        <div class="grid gap-0 md:grid-cols-[240px_minmax(0,1fr)]">
+            <div class="border-b border-gray-100 bg-[#FCFCFC] md:border-b-0 md:border-r">
+                {% if item.image %}
+                    <img src="{{ item.image.url }}" class="h-56 w-full object-cover md:h-full" alt="{{ item.name }}">
+                {% else %}
+                    <div class="flex h-56 items-center justify-center text-sm text-gray-400 md:h-full">No image available</div>
+                {% endif %}
+            </div>
+
+            <div class="p-4 sm:p-5">
+                <div class="flex flex-wrap items-center gap-2">
+                    <span class="badge border border-gray-200 bg-white px-2 py-0.5 text-[10px] text-gray-500">Signature dish</span>
+                    {% if item.available %}
+                        <span class="badge bg-emerald-50 px-2 py-0.5 text-[10px] text-emerald-600">In stock</span>
+                    {% else %}
+                        <span class="badge bg-gray-100 px-2 py-0.5 text-[10px] text-gray-500">Unavailable</span>
+                    {% endif %}
+                </div>
+
+                <div class="mt-4 grid gap-3 sm:grid-cols-2">
+                    <div class="rounded-xl border border-[#F3F4F6] bg-[#FCFCFC] p-3">
+                        <p class="text-[11px] font-medium uppercase tracking-[0.18em] text-gray-400">Price</p>
+                        <p class="mt-2 text-2xl font-bold text-[#E23744]">Rs {{ item.price }}</p>
+                    </div>
+                    <div class="rounded-xl border border-[#F3F4F6] bg-[#FCFCFC] p-3">
+                        <p class="text-[11px] font-medium uppercase tracking-[0.18em] text-gray-400">Status</p>
+                        <p class="mt-2 text-sm font-semibold {% if item.available %}text-emerald-500{% else %}text-gray-400{% endif %}">
+                            {% if item.available %}Available now{% else %}Currently unavailable{% endif %}
+                        </p>
+                    </div>
+                </div>
+
+                <div class="mt-4 rounded-xl border border-dashed border-gray-200 p-3">
+                    <p class="text-[11px] font-medium uppercase tracking-[0.18em] text-gray-400">Service Note</p>
+                    <p class="mt-2 text-sm leading-relaxed text-gray-500">
+                        Prepared fresh and presented in a simpler room-service layout for faster browsing.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <aside class="card lg:sticky lg:top-20 lg:h-fit">
+        <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-400">Order</p>
+        <h2 class="mt-1 text-xl font-bold text-[#1C1C1C]">Quick Actions</h2>
+        <p class="mt-2 text-sm text-gray-400">Continue with a clean, minimal ordering flow for this item.</p>
+
+        {% if item.available %}
+            {% if can_order %}
+                <form method="post" action="{% url 'menu:add_to_cart' item.pk %}" class="form-card mt-5 rounded-none border-0 p-0 shadow-none">
+                    {% csrf_token %}
+                    <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                    {{ form.as_p }}
+                    <div class="mt-4 flex flex-col gap-2">
+                        <button type="submit" class="inline-flex w-full items-center justify-center rounded-lg bg-[#E23744] py-2.5 text-sm font-semibold text-white transition hover:bg-[#c92d39]">Add to Cart</button>
+                        <a href="{% url 'menu:menu_list' %}" class="inline-flex w-full items-center justify-center rounded-lg border border-gray-200 py-2.5 text-sm font-medium text-[#1C1C1C] transition hover:border-[#E23744] hover:text-[#E23744]">Back to Menu</a>
+                    </div>
+                </form>
+            {% elif user.is_authenticated and user.role == "admin" %}
+                <div class="mt-5 rounded-xl border border-[#F3F4F6] bg-[#FCFCFC] p-4 text-center">
+                    <div class="mx-auto mb-3 flex h-11 w-11 items-center justify-center rounded-full bg-red-50 text-[#E23744]">
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M18 9v6M15 12h6M5 5h6v6H5zM5 13h6v6H5z"></path></svg>
+                    </div>
+                    <p class="text-sm text-gray-500">Admin accounts cannot place customer orders.</p>
+                </div>
+                <div class="mt-3 flex flex-col gap-2">
+                    <a href="{% url 'accounts:admin_dashboard' %}" class="inline-flex w-full items-center justify-center rounded-lg bg-[#E23744] py-2.5 text-sm font-semibold text-white transition hover:bg-[#c92d39]">Go to Admin Dashboard</a>
+                    <a href="{% url 'menu:menu_list' %}" class="inline-flex w-full items-center justify-center rounded-lg border border-gray-200 py-2.5 text-sm font-medium text-[#1C1C1C] transition hover:border-[#E23744] hover:text-[#E23744]">Back to Menu</a>
+                </div>
+            {% else %}
+                <div class="mt-5 rounded-xl border border-[#F3F4F6] bg-[#FCFCFC] p-4 text-center">
+                    <div class="mx-auto mb-3 flex h-11 w-11 items-center justify-center rounded-full bg-red-50 text-[#E23744]">
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15 7a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm-7 12a7 7 0 1 1 14 0"></path></svg>
+                    </div>
+                    <p class="text-sm leading-relaxed text-gray-500">Please login as a customer account to add this item to cart.</p>
+                </div>
+                <div class="mt-3 flex flex-col gap-2">
+                    <a href="{% url 'accounts:login' %}" class="inline-flex w-full items-center justify-center rounded-lg bg-[#E23744] py-2.5 text-sm font-semibold text-white transition hover:bg-[#c92d39]">Login</a>
+                    <a href="{% url 'menu:menu_list' %}" class="inline-flex w-full items-center justify-center rounded-lg border border-gray-200 py-2.5 text-sm font-medium text-[#1C1C1C] transition hover:border-[#E23744] hover:text-[#E23744]">Back to Menu</a>
+                </div>
+            {% endif %}
+        {% else %}
+            <div class="mt-5 rounded-xl border border-dashed border-gray-200 bg-[#FCFCFC] p-4 text-sm text-gray-500">
+                This item is currently unavailable.
+            </div>
+            <div class="mt-3">
+                <a href="{% url 'menu:menu_list' %}" class="inline-flex w-full items-center justify-center rounded-lg border border-gray-200 py-2.5 text-sm font-medium text-[#1C1C1C] transition hover:border-[#E23744] hover:text-[#E23744]">Back to Menu</a>
+            </div>
+        {% endif %}
+    </aside>
+</section>
+{% endblock %}

@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% block title %}{% if role == "waiter" %}Staff Dashboard{% else %}Admin Dashboard{% endif %}{% endblock %}
+{% block content %}
+<section class="grid gap-3 lg:grid-cols-[220px,minmax(0,1fr)]">
+    {% include 'includes/admin_sidebar.html' %}
+
+    <div class="space-y-4">
+        <section class="px-4 pt-5 pb-4 max-w-6xl mx-auto">
+            <p class="text-[10px] font-semibold tracking-widest text-red-500 uppercase mb-1 flex items-center gap-2">
+                <span class="w-1.5 h-1.5 bg-red-500 rounded-full inline-block"></span>
+                {% if role == "waiter" %}STAFF{% else %}ADMIN{% endif %}
+            </p>
+            <h1 class="text-2xl font-extrabold text-gray-900 leading-tight tracking-tight mb-2">
+                {% if restaurant %}{{ restaurant.name }}{% else %}Dashboard{% endif %}
+            </h1>
+            <p class="text-gray-400 text-sm max-w-xl leading-relaxed">
+                {% if role == "waiter" %}Order management for your restaurant.{% else %}Central management for staff, menu catalog, and order operations.{% endif %}
+            </p>
+            <div class="mt-4 h-px bg-gray-100"></div>
+        </section>
+
+        <section class="grid gap-3 sm:grid-cols-2 xl:grid-cols-{% if role == "restaurant_admin" %}4{% else %}3{% endif %}">
+            {% if role == "restaurant_admin" %}
+            <article class="card">
+                <div class="flex items-start justify-between gap-4">
+                    <div>
+                        <p class="text-sm text-gray-400">Staff Members</p>
+                        <p class="mt-3 text-3xl font-bold text-[#1C1C1C]">{{ users_count }}</p>
+                    </div>
+                    <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-red-50 text-[#E23744]">
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2M9 7a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z"></path></svg>
+                    </div>
+                </div>
+            </article>
+            <article class="card">
+                <div class="flex items-start justify-between gap-4">
+                    <div>
+                        <p class="text-sm text-gray-400">Menu Items</p>
+                        <p class="mt-3 text-3xl font-bold text-[#1C1C1C]">{{ menu_items_count }}</p>
+                    </div>
+                    <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-red-50 text-[#E23744]">
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 7h16M4 12h16M4 17h8"></path></svg>
+                    </div>
+                </div>
+            </article>
+            {% endif %}
+            <article class="card">
+                <div class="flex items-start justify-between gap-4">
+                    <div>
+                        <p class="text-sm text-gray-400">Orders Today</p>
+                        <p class="mt-3 text-3xl font-bold text-[#1C1C1C]">{{ orders_count }}</p>
+                    </div>
+                    <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-red-50 text-[#E23744]">
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 5H7a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"></path></svg>
+                    </div>
+                </div>
+            </article>
+            <article class="card">
+                <div class="flex items-start justify-between gap-4">
+                    <div>
+                        <p class="text-sm text-gray-400">Pending Orders</p>
+                        <p class="mt-3 text-3xl font-bold text-[#E23744]">{{ pending_orders_count }}</p>
+                    </div>
+                    <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 8v4l3 3m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"></path></svg>
+                    </div>
+                </div>
+            </article>
+        </section>
+
+        <section class="card">
+            <h2 class="text-2xl font-bold text-[#1C1C1C]">Quick Actions</h2>
+            <div class="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                <a href="{% url 'orders:admin_order_list' %}" class="rounded-xl border border-[#F0F0F0] p-4 text-sm font-medium text-gray-500 transition hover:border-[#E23744] hover:text-[#E23744]">View Orders</a>
+                {% if role == "restaurant_admin" %}
+                <a href="{% url 'menu:admin_menu_list' %}" class="rounded-xl border border-[#F0F0F0] p-4 text-sm font-medium text-gray-500 transition hover:border-[#E23744] hover:text-[#E23744]">Manage Menu Items</a>
+                <a href="{% url 'menu:admin_category_list' %}" class="rounded-xl border border-[#F0F0F0] p-4 text-sm font-medium text-gray-500 transition hover:border-[#E23744] hover:text-[#E23744]">Manage Categories</a>
+                <a href="{% url 'accounts:admin_user_list' %}" class="rounded-xl border border-[#F0F0F0] p-4 text-sm font-medium text-gray-500 transition hover:border-[#E23744] hover:text-[#E23744]">Manage Staff</a>
+                {% endif %}
+            </div>
+        </section>
+    </div>
+</section>
+{% endblock %}

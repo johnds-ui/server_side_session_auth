@@ -1,0 +1,39 @@
+<aside class="rounded-xl border border-[#F0F0F0] bg-white p-4 shadow-card lg:sticky lg:top-20 lg:w-[220px] lg:self-start">
+    {% with role=request.flask_session.role %}
+    <p class="px-3 pb-3 text-xs font-semibold uppercase tracking-[0.24em] text-gray-400">
+        {% if role == "restaurant_admin" %}Admin{% else %}Staff{% endif %}
+    </p>
+    <nav class="space-y-1.5">
+        <a href="{% url 'accounts:admin_dashboard' %}" class="flex items-center gap-3 rounded-r-xl border-l-2 px-3 py-2 text-sm font-medium transition {% if '/accounts/admin/dashboard/' in request.path %}border-[#E23744] bg-red-50 text-[#E23744]{% else %}border-transparent text-gray-500 hover:bg-gray-50 hover:text-[#1C1C1C]{% endif %}">
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 13h8V3H3v10Zm10 8h8v-6h-8v6Zm0-10h8V3h-8v8ZM3 21h8v-6H3v6Z"></path></svg>
+            Dashboard
+        </a>
+
+        {# Orders — visible to waiters and admins #}
+        <a href="{% url 'orders:admin_order_list' %}" class="flex items-center gap-3 rounded-r-xl border-l-2 px-3 py-2 text-sm font-medium transition {% if '/orders/admin/' in request.path %}border-[#E23744] bg-red-50 text-[#E23744]{% else %}border-transparent text-gray-500 hover:bg-gray-50 hover:text-[#1C1C1C]{% endif %}">
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 5H7a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 6 0M9 5a2 2 0 0 0 0 4h6a2 2 0 0 0 0-4"></path></svg>
+            Orders
+        </a>
+
+        {# Menu / categories — restaurant_admin only #}
+        {% if role == "restaurant_admin" %}
+        <a href="{% url 'menu:admin_menu_list' %}" class="flex items-center gap-3 rounded-r-xl border-l-2 px-3 py-2 text-sm font-medium transition {% if '/menu/admin/items/' in request.path %}border-[#E23744] bg-red-50 text-[#E23744]{% else %}border-transparent text-gray-500 hover:bg-gray-50 hover:text-[#1C1C1C]{% endif %}">
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 7h16M4 12h16M4 17h10"></path></svg>
+            Menu Items
+        </a>
+        <a href="{% url 'menu:admin_category_list' %}" class="flex items-center gap-3 rounded-r-xl border-l-2 px-3 py-2 text-sm font-medium transition {% if '/menu/admin/categories/' in request.path %}border-[#E23744] bg-red-50 text-[#E23744]{% else %}border-transparent text-gray-500 hover:bg-gray-50 hover:text-[#1C1C1C]{% endif %}">
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M8 7h13M8 12h13M8 17h13M3 7h.01M3 12h.01M3 17h.01"></path></svg>
+            Categories
+        </a>
+        <a href="{% url 'accounts:admin_user_list' %}" class="flex items-center gap-3 rounded-r-xl border-l-2 px-3 py-2 text-sm font-medium transition {% if '/accounts/admin/users/' in request.path %}border-[#E23744] bg-red-50 text-[#E23744]{% else %}border-transparent text-gray-500 hover:bg-gray-50 hover:text-[#1C1C1C]{% endif %}">
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2M9 7a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm10 14v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+            Staff
+        </a>
+        <a href="{% url 'accounts:admin_add_staff' %}" class="flex items-center gap-3 rounded-r-xl border-l-2 px-3 py-2 text-sm font-medium transition {% if 'add-staff' in request.path %}border-[#E23744] bg-red-50 text-[#E23744]{% else %}border-transparent text-gray-500 hover:bg-gray-50 hover:text-[#1C1C1C]{% endif %}">
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 7a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm13 6-4.5 4.5M19 13v6M22 16h-6"/></svg>
+            Add Staff
+        </a>
+        {% endif %}
+    </nav>
+    {% endwith %}
+</aside>

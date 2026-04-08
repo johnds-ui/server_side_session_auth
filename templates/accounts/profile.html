@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block title %}Profile{% endblock %}
+{% block content %}
+<section class="px-4 pt-5 pb-4 max-w-6xl mx-auto mb-4">
+    <p class="text-[10px] font-semibold tracking-widest text-red-500 uppercase mb-1 flex items-center gap-2">
+        <span class="w-1.5 h-1.5 bg-red-500 rounded-full inline-block"></span>
+        ACCOUNT
+    </p>
+    <h1 class="text-2xl font-extrabold text-gray-900 leading-tight tracking-tight mb-2">Your Account</h1>
+    <p class="text-gray-400 text-sm max-w-xl leading-relaxed">Your account details and access level.</p>
+    <div class="mt-4 h-px bg-gray-100"></div>
+</section>
+
+<section class="grid gap-4 md:grid-cols-3">
+    <article class="card">
+        <p class="text-sm text-gray-400">Username</p>
+        <p class="mt-3 text-2xl font-bold text-[#1C1C1C]">{{ user.username }}</p>
+    </article>
+    <article class="card">
+        <p class="text-sm text-gray-400">Email</p>
+        <p class="mt-3 break-all text-2xl font-bold text-[#1C1C1C]">{{ user.email }}</p>
+    </article>
+    <article class="card">
+        <p class="text-sm text-gray-400">Role</p>
+        <p class="mt-3 text-2xl font-bold text-[#1C1C1C]">{{ user.get_role_display }}</p>
+    </article>
+</section>
+{% endblock %}

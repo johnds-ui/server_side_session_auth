@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+{% block title %}Menu{% if selected_restaurant %} — {{ selected_restaurant.name }}{% endif %}{% endblock %}
+{% block content %}
+{% include 'includes/cart_preview_card.html' %}
+<section class="px-4 pt-5 pb-4 max-w-6xl mx-auto mb-4">
+    <p class="text-[10px] font-semibold tracking-widest text-red-500 uppercase mb-1 flex items-center gap-2">
+        <span class="w-1.5 h-1.5 bg-red-500 rounded-full inline-block"></span>
+        MENU
+    </p>
+    <div class="flex flex-wrap items-center justify-between gap-3">
+        <div>
+            <h1 class="text-2xl font-extrabold text-gray-900 leading-tight tracking-tight mb-2">
+                {% if selected_restaurant %}{{ selected_restaurant.name }}{% else %}Our Menu{% endif %}
+            </h1>
+            <p class="text-gray-400 text-sm max-w-xl leading-relaxed">Fresh room-service favorites, signature mains, and quick comforts delivered with a premium minimal experience.</p>
+        </div>
+        {% with flask_role=request.flask_session.role %}
+        {% if not flask_role or flask_role == "customer" %}
+        <a href="{% url 'accounts:restaurant_select' %}"
+            class="inline-flex items-center gap-1.5 rounded-full border border-gray-200 bg-white px-4 py-2 text-xs font-medium text-gray-500 shadow-sm transition hover:border-[#E23744] hover:text-[#E23744]">
+            <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0-4-4m4 4-4 4M4 17H16m0 0-4-4m4 4-4 4"/>
+            </svg>
+            Change Restaurant
+        </a>
+        {% endif %}
+        {% endwith %}
+    </div>
+    <div class="mt-4 h-px bg-gray-100"></div>
+</section>
+
+{% for category in categories %}
+    <section class="mb-4">
+        <div class="mb-2 mt-5 flex items-center justify-between gap-3">
+            <h2 class="text-base font-bold text-[#1C1C1C]">{{ category.name }}</h2>
+            <span class="badge border border-gray-200 bg-white px-2 py-0.5 text-[10px] text-gray-500">Popular</span>
+        </div>
+        <div class="stagger grid grid-cols-1 gap-3 md:grid-cols-2">
+            {% for item in category.items.all %}
+                <article class="rounded-xl bg-white p-3 shadow-[0_1px_6px_rgba(0,0,0,0.06)] ring-1 ring-[#F7F7F7] transition hover:-translate-y-0.5">
+                    <div class="flex h-full flex-col gap-3 sm:flex-row sm:items-center">
+                        {% if item.image %}
+                            <img src="{{ item.image.url }}" alt="{{ item.name }}" class="h-14 w-14 rounded-full object-cover">
+                        {% else %}
+                            <div class="flex h-14 w-14 items-center justify-center rounded-full bg-gray-100 text-xs font-medium text-gray-400">No image</div>
+                        {% endif %}
+                        <div class="flex min-w-0 flex-1 flex-col">
+                            <div class="flex items-start justify-between gap-3">
+                                <div class="min-w-0">
+                                    <h3 class="truncate text-sm font-semibold text-[#1C1C1C]">{{ item.name }}</h3>
+                                    <p class="mt-1 overflow-hidden text-xs text-gray-400 [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:1]">{{ item.description|default:"Freshly prepared by our in-house kitchen." }}</p>
+                                </div>
+                            </div>
+                            <div class="mt-3 flex flex-wrap items-center justify-between gap-3">
+                                <div>
+                                    <p class="text-sm font-bold text-red-500">Rs {{ item.price }}</p>
+                                    {% if item.available %}
+                                        <span class="mt-1 inline-flex text-[10px] font-medium text-emerald-500">In stock</span>
+                                    {% else %}
+                                        <span class="mt-1 inline-flex text-[10px] font-medium text-gray-400">Unavailable</span>
+                                    {% endif %}
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    {% if item.available %}
+                                        {% with flask_role=request.flask_session.role %}
+                                        {% if user.is_authenticated and flask_role == "customer" %}
+                                            <form method="post" action="{% url 'menu:add_to_cart' item.pk %}" class="flex items-center gap-2">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="quantity" value="1">
+                                                <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                                                <button type="submit" class="inline-flex items-center rounded-lg bg-[#E23744] px-3 py-1 text-xs font-medium text-white transition hover:bg-[#c92d39]">Add</button>
+                                                <a href="{% url 'menu:menu_detail' item.pk %}" class="inline-flex items-center rounded-lg border border-gray-200 px-3 py-1 text-xs text-[#1C1C1C] transition hover:border-[#E23744] hover:text-[#E23744]">View</a>
+                                            </form>
+                                        {% else %}
+                                            <a href="{% url 'menu:menu_detail' item.pk %}" class="inline-flex items-center rounded-lg bg-[#E23744] px-3 py-1 text-xs font-medium text-white transition hover:bg-[#c92d39]">View</a>
+                                        {% endif %}
+                                        {% endwith %}
+                                    {% else %}
+                                        <a href="{% url 'menu:menu_detail' item.pk %}" class="inline-flex items-center rounded-lg border border-gray-200 px-3 py-1 text-xs text-[#1C1C1C] transition hover:border-[#E23744] hover:text-[#E23744]">View</a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+            {% empty %}
+                <div class="card col-span-full py-8">
+                    <div class="mx-auto flex max-w-md flex-col items-center text-center">
+                        <div class="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-red-50 text-[#E23744]">
+                            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 6v12m6-6H6"></path></svg>
+                        </div>
+                        <h3 class="text-lg font-semibold text-[#1C1C1C]">No items yet</h3>
+                        <p class="mt-2 text-sm text-gray-400">This section is being prepared by the kitchen team.</p>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </section>
+{% empty %}
+    <section class="card py-8">
+        <div class="mx-auto flex max-w-md flex-col items-center text-center">
+            <div class="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-50 text-[#E23744]">
+                <svg class="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 10h18M7 15h10M6 6h12"></path></svg>
+            </div>
+            <h2 class="text-base font-bold text-[#1C1C1C]">Menu coming soon</h2>
+            <p class="mt-2 text-sm text-gray-400">Categories are not available right now.</p>
+        </div>
+    </section>
+{% endfor %}
+{% endblock %}

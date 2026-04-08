@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+{% block title %}Add Staff Member{% endblock %}
+{% block content %}
+<section class="grid gap-3 lg:grid-cols-[220px,minmax(0,1fr)]">
+    {% include 'includes/admin_sidebar.html' %}
+
+    <div class="space-y-4">
+        <section class="px-4 pt-5 pb-4 max-w-6xl mx-auto">
+            <p class="text-[10px] font-semibold tracking-widest text-red-500 uppercase mb-1 flex items-center gap-2">
+                <span class="w-1.5 h-1.5 bg-red-500 rounded-full inline-block"></span>
+                {{ restaurant.name }}
+            </p>
+            <h1 class="text-2xl font-extrabold text-gray-900 leading-tight tracking-tight mb-2">Add Staff Member</h1>
+            <p class="text-gray-400 text-sm max-w-xl leading-relaxed">
+                Create a login for a new waiter at <strong>{{ restaurant.name }}</strong>.
+                They can immediately sign in at the admin portal.
+            </p>
+            <div class="mt-4 h-px bg-gray-100"></div>
+        </section>
+
+        <section class="max-w-md px-4">
+            {% if messages %}
+            <ul class="mb-4 space-y-2">
+                {% for message in messages %}
+                <li class="rounded-lg px-4 py-3 text-sm font-medium
+                    {% if message.tags == 'error' %}bg-red-50 text-red-600
+                    {% elif message.tags == 'success' %}bg-emerald-50 text-emerald-700
+                    {% else %}bg-blue-50 text-blue-700{% endif %}">
+                    {{ message }}
+                </li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+
+            <div class="rounded-xl bg-white p-6 shadow-[0_1px_6px_rgba(0,0,0,0.06)]">
+                <form method="post" class="space-y-5">
+                    {% csrf_token %}
+
+                    {% if form.non_field_errors %}
+                    <div class="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-600">
+                        {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+                    </div>
+                    {% endif %}
+
+                    {# Email #}
+                    <div>
+                        <label for="{{ form.email.id_for_label }}" class="mb-1.5 block text-sm font-medium text-gray-700">
+                            {{ form.email.label }}
+                        </label>
+                        {{ form.email }}
+                        {% if form.email.errors %}
+                        <p class="mt-1 text-xs text-red-500">{{ form.email.errors|join:", " }}</p>
+                        {% endif %}
+                    </div>
+
+                    {# Role #}
+                    <div>
+                        <label for="{{ form.role.id_for_label }}" class="mb-1.5 block text-sm font-medium text-gray-700">
+                            {{ form.role.label }}
+                        </label>
+                        {{ form.role }}
+                        {% if form.role.errors %}
+                        <p class="mt-1 text-xs text-red-500">{{ form.role.errors|join:", " }}</p>
+                        {% endif %}
+                    </div>
+
+                    {# Temporary password #}
+                    <div>
+                        <label for="{{ form.password.id_for_label }}" class="mb-1.5 block text-sm font-medium text-gray-700">
+                            {{ form.password.label }}
+                        </label>
+                        <p class="mb-1.5 text-xs text-gray-400">Share this with the staff member. They can change it later.</p>
+                        {{ form.password }}
+                        {% if form.password.errors %}
+                        <p class="mt-1 text-xs text-red-500">{{ form.password.errors|join:", " }}</p>
+                        {% endif %}
+                    </div>
+
+                    <div class="flex gap-3 pt-1">
+                        <button type="submit"
+                            class="inline-flex flex-1 items-center justify-center rounded-xl bg-[#E23744] py-3 font-semibold text-white transition hover:bg-[#c92d39]">
+                            Add Staff Member
+                        </button>
+                        <a href="{% url 'accounts:admin_user_list' %}"
+                            class="inline-flex flex-1 items-center justify-center rounded-xl border border-gray-200 py-3 text-sm font-medium text-[#1C1C1C] transition hover:border-[#E23744] hover:text-[#E23744]">
+                            Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </section>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block title %}Admin Login{% endblock %}
+{% block content %}
+<section class="px-4 pt-5 pb-4 max-w-6xl mx-auto">
+    <p class="text-[10px] font-semibold tracking-widest text-red-500 uppercase mb-1 flex items-center gap-2">
+        <span class="w-1.5 h-1.5 bg-red-500 rounded-full inline-block"></span>
+        ADMIN
+    </p>
+    <h1 class="text-2xl font-extrabold text-gray-900 leading-tight tracking-tight mb-2">Admin Portal</h1>
+    <p class="text-gray-400 text-sm max-w-xl leading-relaxed">Sign in with an admin account to manage menu, orders, and users.</p>
+    <div class="mt-4 h-px bg-gray-100"></div>
+</section>
+
+<section class="mx-auto max-w-md py-4">
+    <div class="rounded-xl bg-white p-4 shadow-[0_1px_6px_rgba(0,0,0,0.06)]">
+        <form method="post" class="form-card space-y-5 rounded-none border-0 p-0 shadow-none">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="inline-flex w-full items-center justify-center rounded-xl bg-[#E23744] py-3 font-semibold text-white transition hover:bg-[#c92d39]">Login as Admin</button>
+            <a href="{% url 'accounts:admin_register' %}" class="inline-flex w-full items-center justify-center rounded-xl border border-gray-200 py-3 text-sm font-medium text-[#1C1C1C] transition hover:border-[#E23744] hover:text-[#E23744]">Register New Restaurant Admin</a>
+            <a href="{% url 'accounts:login' %}" class="inline-flex w-full items-center justify-center rounded-xl border border-gray-200 py-3 text-sm font-medium text-[#1C1C1C] transition hover:border-[#E23744] hover:text-[#E23744]">User Login</a>
+        </form>
+    </div>
+</section>
+{% endblock %}

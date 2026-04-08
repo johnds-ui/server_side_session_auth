@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% block title %}Manage Categories{% endblock %}
+{% block content %}
+<section class="grid gap-3 lg:grid-cols-[220px,minmax(0,1fr)]">
+    {% include 'includes/admin_sidebar.html' %}
+
+    <div class="space-y-4">
+        <section class="px-4 pt-5 pb-4 max-w-6xl mx-auto">
+            <p class="text-[10px] font-semibold tracking-widest text-red-500 uppercase mb-1 flex items-center gap-2">
+                <span class="w-1.5 h-1.5 bg-red-500 rounded-full inline-block"></span>
+                ADMIN
+            </p>
+            <h1 class="text-2xl font-extrabold text-gray-900 leading-tight tracking-tight mb-2">Manage Categories</h1>
+            <p class="text-gray-400 text-sm max-w-xl leading-relaxed">Create and maintain menu categories without changing any backend flow.</p>
+            <div class="mt-4 h-px bg-gray-100"></div>
+        </section>
+
+        <div class="px-4">
+            <a href="{% url 'menu:admin_category_create' %}" class="inline-flex rounded-xl bg-[#E23744] px-4 py-2 text-sm font-medium text-white transition hover:bg-[#c92d39]">Add Category</a>
+        </div>
+
+        <section class="card overflow-hidden p-0">
+            <div class="overflow-x-auto">
+                <table class="min-w-full text-sm">
+                    <thead class="bg-white">
+                        <tr class="border-b border-[#F0F0F0] text-left text-gray-400">
+                            <th class="px-6 py-4 font-medium">Name</th>
+                            <th class="px-6 py-4 font-medium">Description</th>
+                            <th class="px-6 py-4 font-medium">Items</th>
+                            <th class="px-6 py-4 font-medium text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for category in categories %}
+                            <tr class="border-b border-[#F8F8F8] transition hover:bg-gray-50">
+                                <td class="px-6 py-4 font-semibold text-[#1C1C1C]">{{ category.name }}</td>
+                                <td class="px-6 py-4 text-gray-500">{{ category.description|default:"-" }}</td>
+                                <td class="px-6 py-4 text-gray-500">{{ category.items.count }}</td>
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center justify-end gap-2">
+                                        <a href="{% url 'menu:admin_category_update' category.pk %}" class="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-gray-200 text-gray-500 transition hover:border-[#E23744] hover:text-[#E23744]" title="Edit category">
+                                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 20h4l10.5-10.5a2.121 2.121 0 0 0-3-3L5.5 17v3Z"></path></svg>
+                                        </a>
+                                        <form method="post" action="{% url 'menu:admin_category_delete' category.pk %}" class="inline-form">
+                                            {% csrf_token %}
+                                            <button type="submit" class="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-gray-200 text-gray-500 transition hover:border-red-300 hover:text-red-500" onclick="return confirm('Delete this category?');" title="Delete category">
+                                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M6 7h12M9 7V5h6v2m-7 4v6m4-6v6m5-10-1 12H8L7 7"></path></svg>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="4" class="px-6 py-12 text-center text-sm text-gray-400">No categories found.</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+</section>
+{% endblock %}

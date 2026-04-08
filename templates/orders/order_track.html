@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+{% block title %}Track Order{% endblock %}
+{% block extra_head %}
+    <meta http-equiv="refresh" content="30">
+    <style>
+        @keyframes order-pulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(229, 62, 62, 0.18); }
+            50% { transform: scale(1.04); box-shadow: 0 0 0 8px rgba(229, 62, 62, 0); }
+        }
+        .tracking-pulse {
+            animation: order-pulse 1.8s ease-in-out infinite;
+        }
+    </style>
+{% endblock %}
+{% block content %}
+<section class="px-4 pt-5 pb-4 max-w-4xl mx-auto">
+    <a href="{% url 'orders:order_history' %}" class="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs text-[#1C1C1C] transition hover:border-[#E23744] hover:text-[#E23744]">
+        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15 19l-7-7 7-7"></path>
+        </svg>
+        Back to orders
+    </a>
+
+    <div class="mt-4 rounded-xl bg-white p-4 shadow-[0_1px_6px_rgba(0,0,0,0.06)] ring-1 ring-[#F7F7F7]">
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div class="flex items-center gap-3">
+                {% if order.primary_image_url %}
+                    <img src="{{ order.primary_image_url }}" alt="{{ order.item_summary }}" class="h-16 w-16 rounded-full object-cover">
+                {% else %}
+                    <div class="flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 text-[10px] font-medium text-gray-400">No image</div>
+                {% endif %}
+                <div class="min-w-0">
+                    <p class="text-[10px] font-semibold tracking-widest text-red-500 uppercase">Live Tracking</p>
+                    <h1 class="mt-1 text-lg font-bold text-[#1C1C1C]">Order #{{ order.id }}</h1>
+                    <p class="mt-1 truncate text-sm text-gray-400">{{ order.item_summary }}</p>
+                    <p class="text-xs text-gray-400">{{ order.item_count }} item{{ order.item_count|pluralize }} | {{ order.created_at|date:"M j, Y, g:i a" }}</p>
+                </div>
+            </div>
+            <div class="flex flex-wrap items-center gap-3 sm:justify-end">
+                <span class="badge bg-red-50 px-2 py-0.5 text-[10px] text-[#E53E3E]">{{ order.get_status_display }}</span>
+                <p class="text-lg font-bold text-[#1C1C1C]">Rs {{ order.total_amount }}</p>
+            </div>
+        </div>
+
+        <div class="mt-4 border-t border-gray-100 pt-3">
+            <p class="text-[10px] font-semibold uppercase tracking-[0.18em] text-gray-400">Order Summary</p>
+            <div class="mt-2 space-y-2">
+                {% for order_item in order.order_items.all %}
+                    <div class="flex items-center justify-between gap-3 text-xs text-gray-500">
+                        <span>{{ order_item.quantity }} x {{ order_item.menu_item.name }}</span>
+                        <span class="font-semibold text-[#1C1C1C]">Rs {{ order_item.subtotal }}</span>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-4 rounded-xl bg-white p-4 shadow-[0_1px_6px_rgba(0,0,0,0.06)] ring-1 ring-[#F7F7F7]">
+        <div class="flex items-start justify-between gap-3">
+            <div>
+                <h2 class="text-base font-bold text-[#1C1C1C]">Tracking Timeline</h2>
+                <p class="mt-1 text-sm text-gray-400">Updated automatically every 30 seconds.</p>
+            </div>
+            {% if order.status == 'cancelled' %}
+                <span class="badge bg-red-50 px-2 py-0.5 text-[10px] text-[#E53E3E]">Cancelled</span>
+            {% endif %}
+        </div>
+
+        <div class="mt-4 space-y-0">
+            {% for step in order.timeline_steps %}
+                <div class="grid grid-cols-[34px_1fr] gap-3">
+                    <div class="flex flex-col items-center">
+                        <div class="{% if step.is_done %}tracking-pulse border-[#E53E3E] bg-[#E53E3E] text-white{% else %}border-gray-200 bg-white text-gray-300{% endif %} flex h-7 w-7 items-center justify-center rounded-full border text-[10px] shadow-sm">
+                            {% if step.is_done %}
+                                <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.4" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                            {% else %}
+                                <div class="h-2 w-2 rounded-full bg-current"></div>
+                            {% endif %}
+                        </div>
+                        {% if not forloop.last %}
+                            <div class="{% if step.is_done and order.status != 'cancelled' %}bg-red-100{% else %}bg-gray-200{% endif %} mt-1 h-10 w-px"></div>
+                        {% endif %}
+                    </div>
+                    <div class="pb-4">
+                        <div class="rounded-lg border {% if step.is_done %}border-red-100 bg-red-50/50{% else %}border-gray-200 bg-white{% endif %} px-3 py-2">
+                            <div class="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+                                <h3 class="text-sm font-semibold text-[#1C1C1C]">{{ step.label }}</h3>
+                                {% if step.timestamp %}
+                                    <span class="text-xs text-gray-400">{{ step.timestamp|date:"M j, g:i a" }}</span>
+                                {% else %}
+                                    <span class="text-xs text-gray-400">Waiting for update</span>
+                                {% endif %}
+                            </div>
+                            <p class="mt-1 text-xs {% if step.is_current and order.status != 'cancelled' %}text-[#E53E3E]{% else %}text-gray-400{% endif %}">
+                                {% if step.is_current and order.status != 'cancelled' %}
+                                    Current stage
+                                {% elif step.is_done %}
+                                    Completed
+                                {% else %}
+                                    Pending
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class="mt-2 rounded-lg border border-red-100 bg-red-50 px-3 py-2">
+            <p class="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#E53E3E]">Live status</p>
+            <p class="mt-1 text-sm text-gray-500">{{ order.live_status_note }}</p>
+        </div>
+    </div>
+</section>
+{% endblock %}

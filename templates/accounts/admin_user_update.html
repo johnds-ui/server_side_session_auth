@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block title %}Edit User{% endblock %}
+{% block content %}
+<section class="grid gap-3 lg:grid-cols-[220px,minmax(0,1fr)]">
+    {% include 'includes/admin_sidebar.html' %}
+
+    <div class="space-y-4">
+        <section class="px-4 pt-5 pb-4 max-w-6xl mx-auto">
+            <p class="text-[10px] font-semibold tracking-widest text-red-500 uppercase mb-1 flex items-center gap-2">
+                <span class="w-1.5 h-1.5 bg-red-500 rounded-full inline-block"></span>
+                ADMIN
+            </p>
+            <h1 class="text-2xl font-extrabold text-gray-900 leading-tight tracking-tight mb-2">Edit User: {{ user_obj.username }}</h1>
+            <p class="text-gray-400 text-sm max-w-xl leading-relaxed">Update account role and status.</p>
+            <div class="mt-4 h-px bg-gray-100"></div>
+        </section>
+
+        <section class="max-w-2xl rounded-xl bg-white p-4 shadow-card">
+            <form method="post" class="form-card space-y-5 rounded-none border-0 p-0 shadow-none">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <div class="flex flex-col gap-3 sm:flex-row">
+                    <button type="submit" class="inline-flex items-center justify-center rounded-xl bg-[#E23744] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#c92d39]">Save User</button>
+                    <a href="{% url 'accounts:admin_user_list' %}" class="inline-flex items-center justify-center rounded-xl border border-gray-200 px-5 py-3 text-sm font-medium text-[#1C1C1C] transition hover:border-[#E23744] hover:text-[#E23744]">Cancel</a>
+                </div>
+            </form>
+        </section>
+    </div>
+</section>
+{% endblock %}

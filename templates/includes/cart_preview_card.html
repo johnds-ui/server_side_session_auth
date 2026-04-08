@@ -1,0 +1,68 @@
+{% if cart_preview %}
+    <div id="cart-preview-card" class="pointer-events-none fixed bottom-4 right-4 z-40 w-[calc(100%-2rem)] max-w-sm animate-slideUp sm:bottom-6 sm:right-6">
+        <div class="pointer-events-auto overflow-hidden rounded-[28px] border border-white/80 bg-[linear-gradient(145deg,rgba(255,255,255,0.96),rgba(255,247,247,0.98))] p-4 shadow-[0_20px_60px_rgba(0,0,0,0.12)] backdrop-blur-xl">
+            <div class="flex items-start gap-3">
+                <div class="flex min-w-0 flex-1 items-center gap-3">
+                    <div class="flex -space-x-3">
+                        {% for avatar in cart_preview.avatar_items %}
+                            <div class="flex h-11 w-11 items-center justify-center overflow-hidden rounded-full border-2 border-white bg-[#F5F5F5] shadow-[0_6px_16px_rgba(0,0,0,0.08)]">
+                                {% if avatar.image_url %}
+                                    <img src="{{ avatar.image_url }}" alt="{{ avatar.name }}" class="h-full w-full object-cover">
+                                {% else %}
+                                    <span class="text-xs font-semibold uppercase text-gray-500">{{ avatar.name|slice:":1" }}</span>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <div class="min-w-0">
+                        <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-[#E23744]">Added to cart</p>
+                        <p class="mt-1 truncate text-sm font-semibold text-[#1C1C1C]">{{ cart_preview.item_name }}</p>
+                        <p class="mt-1 text-xs text-gray-400">
+                            {{ cart_preview.cart_count }} item{{ cart_preview.cart_count|pluralize }} in cart
+                            {% if cart_preview.quantity_added %} . +{{ cart_preview.quantity_added }} just added{% endif %}
+                        </p>
+                    </div>
+                </div>
+                <button type="button" id="cart-preview-close" class="flex h-8 w-8 items-center justify-center rounded-full bg-white/80 text-gray-400 transition hover:text-[#1C1C1C]" aria-label="Close cart preview">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <div class="mt-4 flex items-center justify-between rounded-[22px] bg-[#FFF7F7] px-3 py-2.5">
+                <div>
+                    <p class="text-[11px] uppercase tracking-[0.18em] text-gray-400">Cart total</p>
+                    <p class="mt-1 text-sm font-semibold text-[#1C1C1C]">Rs {{ cart_preview.cart_total }}</p>
+                </div>
+                <a href="{% url 'orders:cart_detail' %}" class="inline-flex items-center justify-center rounded-full bg-[#E23744] px-4 py-2 text-xs font-semibold text-white transition hover:bg-[#c92d39]">
+                    View Cart
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var previewCard = document.getElementById("cart-preview-card");
+            var closeButton = document.getElementById("cart-preview-close");
+
+            if (!previewCard) {
+                return;
+            }
+
+            var dismissPreview = function () {
+                previewCard.style.opacity = "0";
+                previewCard.style.transform = "translateY(12px)";
+                window.setTimeout(function () {
+                    previewCard.remove();
+                }, 220);
+            };
+
+            if (closeButton) {
+                closeButton.addEventListener("click", dismissPreview);
+            }
+
+            window.setTimeout(dismissPreview, 5000);
+        });
+    </script>
+{% endif %}

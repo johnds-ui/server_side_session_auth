@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Hotel Management{% endblock %}</title>
+    {% block extra_head %}{% endblock %}
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#E23744",
+                        bg: "#FAFAFA",
+                        surface: "#FFFFFF",
+                        textbase: "#1C1C1C",
+                        muted: "#6B7280",
+                        borderline: "#F0F0F0",
+                        success: "#1BA672",
+                    },
+                    boxShadow: {
+                        card: "0 1px 6px rgba(0,0,0,0.06)",
+                    },
+                    borderRadius: {
+                        card: "12px",
+                        button: "10px",
+                    },
+                },
+            },
+        };
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #FAFAFA; color: #1C1C1C; }
+        @keyframes slideUp { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+        .animate-slideUp { animation: slideUp 0.3s ease forwards; }
+        .stagger > * { opacity:0; animation: slideUp 0.3s ease forwards; }
+        .stagger > *:nth-child(1){animation-delay:.05s}
+        .stagger > *:nth-child(2){animation-delay:.1s}
+        .stagger > *:nth-child(3){animation-delay:.15s}
+        .stagger > *:nth-child(4){animation-delay:.2s}
+        .btn-primary { background:#E23744; color:#fff; border-radius:10px; padding:.625rem 1rem; font-size:.875rem; font-weight:500; transition:background-color .2s ease; display:inline-flex; align-items:center; justify-content:center; gap:.5rem; }
+        .btn-primary:hover { background:#c92d39; }
+        .card { background:#fff; border-radius:12px; box-shadow:0 1px 6px rgba(0,0,0,.06); border:1px solid #f9fafb; padding:1rem; }
+        .badge { display:inline-flex; align-items:center; border-radius:999px; padding:.25rem .75rem; font-size:.75rem; font-weight:500; }
+        .skeleton-block { border-radius:12px; background:linear-gradient(90deg,#f3f4f6 25%,#e5e7eb 37%,#f3f4f6 63%); background-size:400% 100%; animation:pulse-shift 1.4s ease infinite; }
+        .empty-state-card { background:#fff; border:1px dashed #E5E7EB; border-radius:12px; padding:1rem; text-align:center; }
+        @keyframes pulse-shift { 0% { background-position:100% 50%; } 100% { background-position:0 50%; } }
+        input[type="text"], input[type="password"], input[type="email"], input[type="number"], input[type="file"], textarea, select {
+            width:100%; border:1px solid #E5E7EB; border-radius:12px; padding:.75rem 1rem; background:#fff; color:#1C1C1C; font-size:.95rem; outline:none; transition:border-color .2s ease, box-shadow .2s ease;
+        }
+        input:focus, textarea:focus, select:focus { border-color:#E23744; box-shadow:0 0 0 3px rgba(226,55,68,.12); }
+        label { display:block; margin-bottom:.5rem; font-size:.875rem; font-weight:600; color:#1C1C1C; }
+        .helptext { display:block; margin-top:.4rem; font-size:.75rem; color:#6B7280; }
+        .errorlist { margin:.5rem 0 0; padding:0; list-style:none; font-size:.75rem; color:#E23744; }
+        .form-card p { margin:0 0 1rem; }
+        .form-card p:last-child { margin-bottom:0; }
+    </style>
+</head>
+<body>
+    <div class="min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(226,55,68,0.06),transparent_26%),linear-gradient(180deg,#FAFAFA_0%,#FFFDFD_100%)]">
+        <nav class="sticky top-0 z-50 px-4 pt-3">
+            <div class="mx-auto flex h-14 max-w-6xl items-center justify-between rounded-full border border-white/90 bg-white/88 px-4 py-0 shadow-[0_1px_6px_rgba(0,0,0,0.06)] backdrop-blur-xl">
+                <a href="{% url 'accounts:restaurant_select' %}" class="flex items-center gap-2 text-lg font-bold tracking-[-0.04em] text-[#1C1C1C]">
+                    <span class="h-2.5 w-2.5 rounded-full bg-[#E23744]"></span>
+                    Hotel One
+                </a>
+
+                <button type="button" id="mobile-menu-toggle" class="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-[#F3F4F6] bg-white text-gray-600 transition hover:text-[#E23744] lg:hidden" aria-label="Toggle navigation">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 7h16M4 12h16M4 17h16"></path>
+                    </svg>
+                </button>
+
+                <div id="desktop-nav" class="hidden items-center gap-1.5 lg:flex">
+                    {% with flask_role=request.flask_session.role %}
+                    {% if flask_role == "restaurant_admin" or flask_role == "waiter" %}
+                        {# Staff navbar #}
+                        <a href="{% url 'accounts:admin_dashboard' %}" class="rounded-lg px-3 py-1.5 text-sm transition {% if '/accounts/admin/dashboard/' in request.path %}bg-red-50 font-semibold text-[#E23744]{% else %}text-gray-500 hover:bg-gray-50 hover:text-[#1C1C1C]{% endif %}">Dashboard</a>
+                        <a href="{% url 'orders:admin_order_list' %}" class="rounded-lg px-3 py-1.5 text-sm transition {% if '/orders/admin/' in request.path %}bg-red-50 font-semibold text-[#E23744]{% else %}text-gray-500 hover:bg-gray-50 hover:text-[#1C1C1C]{% endif %}">Orders</a>
+                        {% if flask_role == "restaurant_admin" %}
+                        <a href="{% url 'menu:admin_menu_list' %}" class="rounded-lg px-3 py-1.5 text-sm transition {% if '/menu/admin/items/' in request.path %}bg-red-50 font-semibold text-[#E23744]{% else %}text-gray-500 hover:bg-gray-50 hover:text-[#1C1C1C]{% endif %}">Menu</a>
+                        {% endif %}
+                        <span class="ml-2 rounded-lg bg-[#F9FAFB] px-3 py-1.5 text-sm font-medium text-gray-500">{{ user.username }}</span>
+                        <a href="{% url 'accounts:logout' %}" class="ml-2 inline-flex items-center rounded-lg bg-[#E23744] px-3 py-1.5 text-sm font-semibold text-white transition hover:bg-[#c92d39]">Logout</a>
+                    {% elif user.is_authenticated %}
+                        {# Customer navbar #}
+                        <a href="{% url 'menu:menu_list' %}" class="rounded-lg px-3 py-1.5 text-sm transition {% if '/menu/' in request.path %}bg-red-50 font-semibold text-[#E23744]{% else %}text-gray-500 hover:bg-gray-50 hover:text-[#1C1C1C]{% endif %}">Menu</a>
+                        <a href="{% url 'orders:cart_detail' %}" class="rounded-lg px-3 py-1.5 text-sm transition {% if '/orders/cart/' in request.path %}bg-red-50 font-semibold text-[#E23744]{% else %}text-gray-500 hover:bg-gray-50 hover:text-[#1C1C1C]{% endif %}">Cart</a>
+                        <a href="{% url 'orders:order_history' %}" class="rounded-lg px-3 py-1.5 text-sm transition {% if '/orders/order/history/' in request.path %}bg-red-50 font-semibold text-[#E23744]{% else %}text-gray-500 hover:bg-gray-50 hover:text-[#1C1C1C]{% endif %}">Orders</a>
+                        <a href="{% url 'accounts:profile' %}" class="rounded-lg px-3 py-1.5 text-sm transition {% if '/accounts/profile/' in request.path %}bg-red-50 font-semibold text-[#E23744]{% else %}text-gray-500 hover:bg-gray-50 hover:text-[#1C1C1C]{% endif %}">{{ user.username }}</a>
+                        <a href="{% url 'accounts:logout' %}" class="ml-2 inline-flex items-center rounded-lg bg-[#E23744] px-3 py-1.5 text-sm font-semibold text-white transition hover:bg-[#c92d39]">Logout</a>
+                    {% else %}
+                        {# Guest navbar #}
+                        <a href="{% url 'menu:menu_list' %}" class="rounded-lg px-3 py-1.5 text-sm transition {% if '/menu/' in request.path %}bg-red-50 font-semibold text-[#E23744]{% else %}text-gray-500 hover:bg-gray-50 hover:text-[#1C1C1C]{% endif %}">Menu</a>
+                        <a href="{% url 'accounts:login' %}" class="rounded-lg px-3 py-1.5 text-sm transition {% if '/accounts/login/' in request.path %}bg-red-50 font-semibold text-[#E23744]{% else %}text-gray-500 hover:bg-gray-50 hover:text-[#1C1C1C]{% endif %}">Login</a>
+                        <a href="{% url 'accounts:admin_login' %}" class="rounded-lg px-3 py-1.5 text-sm transition {% if '/accounts/admin-login/' in request.path %}bg-red-50 font-semibold text-[#E23744]{% else %}text-gray-500 hover:bg-gray-50 hover:text-[#1C1C1C]{% endif %}">Staff Login</a>
+                        <a href="{% url 'accounts:register' %}" class="ml-2 inline-flex items-center rounded-lg bg-[#E23744] px-3 py-1.5 text-sm font-semibold text-white transition hover:bg-[#c92d39]">Register</a>
+                    {% endif %}
+                    {% endwith %}
+                </div>
+            </div>
+
+            <div id="mobile-menu" class="mx-4 mt-2 hidden rounded-xl border border-white/90 bg-white/94 p-2 shadow-[0_1px_6px_rgba(0,0,0,0.06)] lg:hidden">
+                <div class="mx-auto flex max-w-6xl flex-col gap-1">
+                    {% with flask_role=request.flask_session.role %}
+                    {% if flask_role == "restaurant_admin" or flask_role == "waiter" %}
+                        <a href="{% url 'accounts:admin_dashboard' %}" class="rounded-lg px-3 py-2 text-sm transition {% if '/accounts/admin/dashboard/' in request.path %}bg-red-50 font-semibold text-[#E23744]{% else %}text-gray-500 hover:bg-gray-50 hover:text-[#1C1C1C]{% endif %}">Dashboard</a>
+                        <a href="{% url 'orders:admin_order_list' %}" class="rounded-lg px-3 py-2 text-sm transition {% if '/orders/admin/' in request.path %}bg-red-50 font-semibold text-[#E23744]{% else %}text-gray-500 hover:bg-gray-50 hover:text-[#1C1C1C]{% endif %}">Orders</a>
+                        {% if flask_role == "restaurant_admin" %}
+                        <a href="{% url 'menu:admin_menu_list' %}" class="rounded-lg px-3 py-2 text-sm transition {% if '/menu/admin/items/' in request.path %}bg-red-50 font-semibold text-[#E23744]{% else %}text-gray-500 hover:bg-gray-50 hover:text-[#1C1C1C]{% endif %}">Menu</a>
+                        {% endif %}
+                        <span class="px-3 py-1.5 text-sm font-medium text-gray-500">{{ user.username }}</span>
+                    {% elif user.is_authenticated %}
+                        <a href="{% url 'menu:menu_list' %}" class="rounded-lg px-3 py-2 text-sm transition {% if '/menu/' in request.path %}bg-red-50 font-semibold text-[#E23744]{% else %}text-gray-500 hover:bg-gray-50 hover:text-[#1C1C1C]{% endif %}">Menu</a>
+                        <a href="{% url 'orders:cart_detail' %}" class="rounded-lg px-3 py-2 text-sm transition {% if '/orders/cart/' in request.path %}bg-red-50 font-semibold text-[#E23744]{% else %}text-gray-500 hover:bg-gray-50 hover:text-[#1C1C1C]{% endif %}">Cart</a>
+                        <a href="{% url 'orders:order_history' %}" class="rounded-lg px-3 py-2 text-sm transition {% if '/orders/order/history/' in request.path %}bg-red-50 font-semibold text-[#E23744]{% else %}text-gray-500 hover:bg-gray-50 hover:text-[#1C1C1C]{% endif %}">Orders</a>
+                        <a href="{% url 'accounts:profile' %}" class="rounded-lg px-3 py-2 text-sm transition {% if '/accounts/profile/' in request.path %}bg-red-50 font-semibold text-[#E23744]{% else %}text-gray-500 hover:bg-gray-50 hover:text-[#1C1C1C]{% endif %}">{{ user.username }}</a>
+                    {% else %}
+                        <a href="{% url 'menu:menu_list' %}" class="rounded-lg px-3 py-2 text-sm transition {% if '/menu/' in request.path %}bg-red-50 font-semibold text-[#E23744]{% else %}text-gray-500 hover:bg-gray-50 hover:text-[#1C1C1C]{% endif %}">Menu</a>
+                        <a href="{% url 'accounts:login' %}" class="rounded-lg px-3 py-2 text-sm transition {% if '/accounts/login/' in request.path %}bg-red-50 font-semibold text-[#E23744]{% else %}text-gray-500 hover:bg-gray-50 hover:text-[#1C1C1C]{% endif %}">Login</a>
+                        <a href="{% url 'accounts:admin_login' %}" class="rounded-lg px-3 py-2 text-sm transition {% if '/accounts/admin-login/' in request.path %}bg-red-50 font-semibold text-[#E23744]{% else %}text-gray-500 hover:bg-gray-50 hover:text-[#1C1C1C]{% endif %}">Staff Login</a>
+                        <a href="{% url 'accounts:register' %}" class="mt-2 inline-flex items-center justify-center rounded-lg bg-[#E23744] px-3 py-1.5 text-sm font-semibold text-white transition hover:bg-[#c92d39]">Register</a>
+                    {% endif %}
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'accounts:logout' %}" class="mt-2 inline-flex items-center justify-center rounded-lg bg-[#E23744] px-3 py-1.5 text-sm font-semibold text-white transition hover:bg-[#c92d39]">Logout</a>
+                    {% endif %}
+                    {% endwith %}
+                </div>
+            </div>
+        </nav>
+
+        <main class="mx-auto w-full max-w-6xl px-4 py-4">
+            {% if messages %}
+                <div id="notification-container" class="fixed bottom-4 right-4 z-50 flex w-[calc(100%-2rem)] max-w-sm flex-col gap-3 sm:w-full">
+                    {% for message in messages %}
+                        <div class="animate-slideUp rounded-xl border px-4 py-3 shadow-lg {% if message.tags == 'success' %}border-emerald-100 bg-emerald-500 text-white{% elif message.tags == 'danger' %}border-red-100 bg-[#E23744] text-white{% else %}border-white/80 bg-white text-[#1C1C1C]{% endif %}">
+                            <div class="flex items-start gap-3">
+                                <div class="mt-0.5 h-2.5 w-2.5 flex-shrink-0 rounded-full {% if message.tags == 'success' %}bg-white/80{% elif message.tags == 'danger' %}bg-white/80{% else %}bg-[#E23744]{% endif %}"></div>
+                                <div class="flex-1 text-sm font-medium">{{ message }}</div>
+                                <button type="button" class="notification-close rounded-lg p-1 text-current/80 transition hover:bg-black/5 hover:text-current" aria-label="Close notification">
+                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M6 18L18 6M6 6l12 12"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var menuToggle = document.getElementById("mobile-menu-toggle");
+            var mobileMenu = document.getElementById("mobile-menu");
+
+            if (menuToggle && mobileMenu) {
+                menuToggle.addEventListener("click", function () {
+                    mobileMenu.classList.toggle("hidden");
+                    mobileMenu.classList.toggle("animate-slideUp");
+                });
+            }
+
+            document.querySelectorAll(".notification-close").forEach(function (button) {
+                button.addEventListener("click", function () {
+                    var toast = button.closest(".animate-slideUp");
+                    if (toast) {
+                        toast.remove();
+                    }
+                });
+            });
+
+            window.setTimeout(function () {
+                document.querySelectorAll("#notification-container > div").forEach(function (toast) {
+                    toast.remove();
+                });
+            }, 5000);
+        });
+    </script>
+</body>
+</html>

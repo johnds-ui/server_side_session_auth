@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block title %}Register{% endblock %}
+{% block content %}
+<section class="px-4 pt-5 pb-4 max-w-6xl mx-auto">
+    <p class="text-[10px] font-semibold tracking-widest text-red-500 uppercase mb-1 flex items-center gap-2">
+        <span class="w-1.5 h-1.5 bg-red-500 rounded-full inline-block"></span>
+        GET STARTED
+    </p>
+    <h1 class="text-2xl font-extrabold text-gray-900 leading-tight tracking-tight mb-2">Create Account</h1>
+    <p class="text-gray-400 text-sm max-w-xl leading-relaxed">Join Hotel One to place orders and track every stay-time favorite.</p>
+    <div class="mt-4 h-px bg-gray-100"></div>
+</section>
+
+<section class="mx-auto max-w-md py-4">
+    <div class="rounded-xl bg-white p-4 shadow-[0_1px_6px_rgba(0,0,0,0.06)]">
+        <form method="post" class="space-y-5">
+            {% csrf_token %}
+            <div class="space-y-4">
+                {% for field in form %}
+                    <div>
+                        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.help_text %}
+                            <p class="mt-1 text-xs text-gray-400">{{ field.help_text }}</p>
+                        {% endif %}
+                        {% if field.errors %}
+                            <ul class="mt-1 text-xs text-red-500">
+                                {% for error in field.errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+            <button type="submit" class="inline-flex w-full items-center justify-center rounded-xl bg-[#E23744] py-3 font-semibold text-white transition hover:bg-[#c92d39]">Create Account</button>
+            <p class="border-t border-[#F0F0F0] pt-5 text-center text-sm text-gray-400">Already have an account? <a href="{% url 'accounts:login' %}" class="font-semibold text-[#E23744]">Sign In</a></p>
+        </form>
+    </div>
+</section>
+{% endblock %}
